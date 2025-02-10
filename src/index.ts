@@ -17,35 +17,45 @@ const ConvertToHex = (digest : ArrayBuffer) => [...new Uint8Array(digest)].map(v
 
 export default {
 	async fetch(request, env, ctx): Promise<Response> {
-		const requestURL = new URL(request.url);
-		const pathArray = requestURL.pathname.split('/').splice(1);
+		try {
+			const requestURL = new URL(request.url);
+			const pathArray = requestURL.pathname.split('/').splice(1);
 
-		switch(pathArray[0]) {
-			case 'p': {
-				const url = requestURL.searchParams.get("url");
-				if(url == null) { return new Response("No URL Provided", { status: 400 }); }
+			switch(pathArray[0]) {
+				case 'p': {
+					const url = requestURL.searchParams.get("url");
+					if(url == null) { return new Response("No URL Provided", { status: 400 }); }
 
-				const encodedURL = new TextEncoder().encode(url);
-				const hash512 = ConvertToHex(await crypto.subtle.digest({ name: "SHA-512" }, encodedURL));
-				const hash256 = ConvertToHex(await crypto.subtle.digest({ name: "SHA-256" }, encodedURL));
+					const encodedURL = new TextEncoder().encode(url);
+					const hash512 = ConvertToHex(await crypto.subtle.digest({ name: "SHA-512" }, encodedURL));
+					const hash256 = ConvertToHex(await crypto.subtle.digest({ name: "SHA-256" }, encodedURL));
 
-				const hash = `${hash256.slice(0, 4)}${hash512.slice(hash512.length - 5, hash512.length - 1)}`;
+					const hash = `${hash256.slice(0, 4)}${hash512.slice(hash512.length - 5, hash512.length - 1)}`;
 
-				if((await env.kv.get(hash)) == null) { await env.kv.put(hash, url) }
+					if((await env.kv.get(hash)) == null) { await env.kv.put(hash, url) }
 
-				const shortURL = `${process.env.NODE_ENV === "development" ? `http://localhost:8787` : `https://urls.conorlewis.com`}/s/${hash}`
+					const shortURL = `${process.env.NODE_ENV === "development" ? `http://localhost:8787` : `https://urls.conorlewis.com`}/s/${hash}`
 
-				return new Response(`Accepted.\nShort URL: ${shortURL}\nOriginal URL: ${url}`, { status: 201 });
+					return new Response(`Accepted.\nShort URL: ${shortURL}\nOriginal URL: ${url}`, { status: 201 });
+				}
+				case 's':
+					const hash = pathArray[1];
+					if(hash == null) { return new Response("No UUID Provided", { status: 400 }); }
+
+					const result = await env.kv.get(hash);
+					if(result == null) { return new Response("Not Found", { status: 404 }); }
+
+					return Response.redirect(result, 302);
+				case 'l':
+					const list = await env.kv.list();
+
+					const output = (await Promise.all(list.keys.map(async (v) => {
+						return `${process.env.NODE_ENV === "development" ? `http://localhost:8787` : `https://urls.conorlewis.com`}/s/${v.name} -> ${await env.kv.get(v.name)}\n`;
+					}))).join('');
+
+					return new Response(output, { status: 200 });
+				default: return new Response("Not Found", { status: 404 });
 			}
-			case 's':
-				const hash = pathArray[1];
-				if(hash == null) { return new Response("No UUID Provided", { status: 400 }); }
-
-				const result = await env.kv.get(hash);
-				if(result == null) { return new Response("Not Found", { status: 404 }); }
-
-				return Response.redirect(result, 302);
-			default: return new Response("Not Found", { status: 404 });
-		}
+		} catch(e) { console.log(e); return new Response("Server Error", { status: 500 }); }
 	},
 } satisfies ExportedHandler<Env>;
