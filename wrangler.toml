@@ -1,0 +1,16 @@
+#:schema node_modules/wrangler/config-schema.json
+name = "urlshortener"
+main = "src/index.ts"
+
+compatibility_date = "2025-02-04"
+compatibility_flags = [ "nodejs_compat" ]
+
+workers_dev = false
+routes = [{ pattern = "urls.conorlewis.com", custom_domain = true}]
+
+[observability]
+enabled = true
+
+[[kv_namespaces]]
+binding = "kv"
+id = "42af8eb0e7114393b282c9313a9dc29b"
