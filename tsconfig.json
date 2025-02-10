@@ -15,8 +15,7 @@
 		"moduleResolution": "Bundler",
 		/* Specify type package names to be included without being referenced in a source file. */
 		"types": [
-			"@cloudflare/workers-types/2023-07-01",
-			"node"
+			"@cloudflare/workers-types/2023-07-01"
 		],
 		/* Enable importing .json files */
 		"resolveJsonModule": true,
@@ -42,6 +41,5 @@
 		/* Skip type checking all .d.ts files. */
 		"skipLibCheck": true
 	},
-	"exclude": ["test"],
 	"include": ["worker-configuration.d.ts", "src/**/*.ts"]
 }
