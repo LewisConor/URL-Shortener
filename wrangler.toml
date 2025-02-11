@@ -17,3 +17,4 @@ id = "42af8eb0e7114393b282c9313a9dc29b"
 
 [vars]
 NODE_ENV = "production"
+CHARACTER_SLICE = "4"

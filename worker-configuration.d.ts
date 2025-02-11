@@ -2,5 +2,6 @@
 
 interface Env {
 	kv: KVNamespace;
-	NODE_ENV: "development" | "production";
+	CHARACTER_SLICE: string | null;
+	NODE_ENV: string;
 }
