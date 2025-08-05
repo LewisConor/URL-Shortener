@@ -17,10 +17,7 @@
 
     //Triggers
     "workers_dev": false,
-    "route": {
-        "custom_domain": true,
-        "pattern": "urls.conorlewis.com"
-    },
+    
 
     //Bindings
     "kv_namespaces": [
