@@ -1,0 +1,52 @@
+{
+    "$schema": "node_modules/wrangler/config-schema.json",
+
+    //Settings
+    "name": "url-shortener",
+    "main": "src/index.ts",
+
+    //Configuration
+    "compatibility_date": "2025-08-05",
+    "compatibility_flags": [ "nodejs_compat" ],
+    "observability": {
+        "enabled": true
+    },
+    "placement": {
+        "mode": "smart"
+    },
+
+    //Triggers
+    "workers_dev": false,
+    "route": {
+        "custom_domain": true,
+        "pattern": "urls.conorlewis.com"
+    },
+
+    //Bindings
+    "kv_namespaces": [
+        {
+            "binding": "kv",
+            "id": "42af8eb0e7114393b282c9313a9dc29b"
+        }
+    ],
+    "vars": {
+        "NODE_ENV": "production",
+        "CHARACTER_SLICE": "4"
+    },
+    "analytics_engine_datasets": [
+        { "binding": "aed", "dataset": "url_shortener" }
+    ],
+    "unsafe": {
+        "bindings": [
+            {
+                "name": "rateLimit",
+                "type": "ratelimit",
+                "namespace_id": "117114108115",
+                "simple": {
+                    "limit": 10,
+                    "period": 10
+                }
+            }
+        ]
+    }
+}

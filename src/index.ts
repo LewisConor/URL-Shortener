@@ -1,8 +1,9 @@
 /**
- * A URL Shortener using Cloudflare Workers & KV
+ * A URL Shortener using Cloudflare Workers, KV & Analytics Engine
  * Uses SHA-512 & SHA-256 to create short url
  * While virtually unlikely, it is liable to the Birthday Paradox/Problem
  * Uses KV (Key = Short URL Hash, Value = Original URL) 
+ * Uses Analytics Engine to count each time hash is used
  * Designed for use with Cloudflare Zero Trust exposing endpoint 's' only.
  */
 export default {
@@ -52,9 +53,19 @@ export default {
 					const hash = pathArray[1];
 					if(hash == null) { return new Response("No UUID Provided", { status: 400 }); }
 
+					//Protection against spamming the same hash
+					if(!(await env.rateLimit.limit({ key: hash })).success) { return new Response("URL currently rate limited!", { status: 429 }); }
+
 					//Check if it exists. If not, return 404
 					const result = await env.kv.get(hash);
 					if(result == null) { return new Response("Not Found", { status: 404 }); }
+
+					//Writes each request to Analytics Engine
+					env.aed.writeDataPoint({
+						indexes: [hash],
+						blobs: [result],
+						doubles: [1]
+					});
 
 					//If found, redirect the user.
 					return Response.redirect(result, 302);
