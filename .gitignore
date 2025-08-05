@@ -173,3 +173,5 @@ dist
 
 # Endpoint Tester
 .bruno
+
+pnpm-*.yaml

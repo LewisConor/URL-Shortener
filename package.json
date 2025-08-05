@@ -2,6 +2,7 @@
   "name": "urlshortener",
   "version": "0.0.0",
   "private": true,
+  "main": "src/index.ts",
   "scripts": {
     "deploy": "wrangler deploy",
     "dev": "wrangler dev",
@@ -9,7 +10,6 @@
     "cf-typegen": "wrangler types"
   },
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.20250204.0",
     "typescript": "^5.5.2",
     "wrangler": "^4.28.0"
   }
